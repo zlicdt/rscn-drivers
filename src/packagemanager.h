@@ -14,6 +14,7 @@
 #include <QObject>
 #include <QString>
 #include <QStringList>
+#include <QProcess>
 
 class PackageManager : public QObject
 {
@@ -23,8 +24,29 @@ public:
     explicit PackageManager(QObject *parent = nullptr);
     ~PackageManager();
 
+    /// Check if a single package is installed locally
     bool isPackageInstalled(const QString &packageName);
+
+    /// Check if a single package is available in the sync repos
     bool isPackageAvailable(const QString &packageName);
+
+    /// Get the installed version of a package, or empty string
+    QString installedVersion(const QString &packageName);
+
+    /// Get the available (repo) version of a package, or empty string
+    QString availableVersion(const QString &packageName);
+
+    /// Check which packages from a list are installed
+    QStringList filterInstalled(const QStringList &packages);
+
+    /// Check which packages from a list are NOT installed
+    QStringList filterNotInstalled(const QStringList &packages);
+
+    /// Detect AUR helper (yay, paru) available on the system
+    QString findAurHelper();
+
+    /// Check if an AUR package is installed
+    bool isAurPackageInstalled(const QString &packageName);
 
 signals:
     void operationOutput(const QString &line);
@@ -35,7 +57,8 @@ public slots:
     void removePackages(const QStringList &packages);
 
 private:
-    QString findAurHelper();
+    /// Run a command synchronously, return (stdout, exitCode)
+    QPair<QString, int> runCommand(const QString &command, const QStringList &args) const;
 };
 
 #endif // PACKAGEMANAGER_H

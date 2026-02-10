@@ -14,14 +14,19 @@
 #include <QObject>
 #include <QString>
 #include <QList>
+#include <QStringList>
 
 struct GpuDevice {
     QString pciSlot;       // e.g. "01:00.0"
     QString vendor;        // "Intel", "AMD", "NVIDIA"
-    QString model;         // e.g. "GeForce RTX 3060"
-    QString pciId;         // e.g. "10de:2504"
+    QString model;         // e.g. "GeForce RTX 4060 Max-Q / Mobile"
+    QString pciId;         // vendor:device e.g. "10de:28e0"
+    QString vendorId;      // e.g. "10de"
+    QString deviceId;      // e.g. "28e0"
     QString kernelDriver;  // e.g. "nvidia", "nouveau", "amdgpu", "i915"
-    QString kernelModule;  // kernel modules available
+    QStringList kernelModules; // available kernel modules
+    QString subsystem;     // e.g. "Lenovo Device"
+    QString deviceClass;   // e.g. "VGA compatible controller", "3D controller"
 };
 
 class HardwareDetector : public QObject
@@ -32,9 +37,20 @@ public:
     explicit HardwareDetector(QObject *parent = nullptr);
     ~HardwareDetector();
 
+    /// Run lspci and detect all GPU devices
     QList<GpuDevice> detectGpus();
 
+    /// Identify the vendor string from a raw lspci vendor description
+    static QString identifyVendor(const QString &rawVendor);
+
+    /// Extract the model name from the full lspci device description
+    static QString extractModel(const QString &rawDescription, const QString &vendor);
+
 private:
+    /// Run a command and return its stdout
+    QString runCommand(const QString &command, const QStringList &args) const;
+
+    /// Parse the full output of `lspci -nn -k` to find GPU entries
     QList<GpuDevice> parseLspciOutput(const QString &output);
 };
 

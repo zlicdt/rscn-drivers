@@ -2,29 +2,29 @@
 
 ## Phase 1: Project Setup
 
-- [ ] Initialize CMake project structure (CMakeLists.txt)
-- [ ] Set up Qt6 Widgets dependencies
-- [ ] Create basic directory layout (`src/`, `resources/`, `assets/`)
-- [ ] Create `.desktop` file for application launcher
-- [ ] Create polkit policy file (for root privilege escalation)
-- [ ] Add application icon and resources (.qrc)
+- [x] Initialize CMake project structure (CMakeLists.txt)
+- [x] Set up Qt6 Widgets dependencies
+- [x] Create basic directory layout (`src/`, `resources/`, `assets/`)
+- [x] Create `.desktop` file for application launcher
+- [x] Create polkit policy file (for root privilege escalation)
+- [x] Add application icon and resources (.qrc)
 
 ## Phase 2: Hardware Detection Backend
 
-- [ ] Detect GPU hardware via `lspci` parsing
-  - [ ] Identify vendor (Intel / AMD / NVIDIA)
-  - [ ] Identify specific model and architecture generation
-  - [ ] Determine PCI ID for precise driver matching
-- [ ] Detect currently loaded kernel driver (`lspci -k`)
-- [ ] Detect currently installed driver packages (`pacman -Q`)
-- [ ] Detect available driver packages from repos (`pacman -Ss`)
-- [ ] Build a driver recommendation engine based on:
-  - [ ] GPU vendor + architecture → recommended packages
-  - [ ] Intel: mesa, vulkan-intel, intel-media-driver, etc.
-  - [ ] AMD: mesa, xf86-video-amdgpu, vulkan-radeon, etc.
-  - [ ] NVIDIA: nvidia-dkms / nvidia / nvidia-lts + utils
-  - [ ] NVIDIA legacy: nvidia-470xx-dkms (AUR)
-  - [ ] Nouveau fallback: xf86-video-nouveau
+- [x] Detect GPU hardware via `lspci` parsing
+  - [x] Identify vendor (Intel / AMD / NVIDIA)
+  - [x] Identify specific model and architecture generation
+  - [x] Determine PCI ID for precise driver matching
+- [x] Detect currently loaded kernel driver (`lspci -k`)
+- [x] Detect currently installed driver packages (`pacman -Q`)
+- [x] Detect available driver packages from repos (`pacman -Ss`)
+- [x] Build a driver recommendation engine based on:
+  - [x] GPU vendor + architecture → recommended packages
+  - [x] Intel: mesa, vulkan-intel, intel-media-driver, etc.
+  - [x] AMD: mesa, xf86-video-amdgpu, vulkan-radeon, etc.
+  - [x] NVIDIA: nvidia-dkms / nvidia / nvidia-lts + utils
+  - [x] NVIDIA legacy: nvidia-470xx-dkms (AUR)
+  - [x] Nouveau fallback: xf86-video-nouveau
 
 ## Phase 3: Driver Database / Profile System
 

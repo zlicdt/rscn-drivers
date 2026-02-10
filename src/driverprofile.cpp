@@ -10,15 +10,297 @@
 
 #include "driverprofile.h"
 
+// ---------------------------------------------------------------------------
+// Intel profiles
+// ---------------------------------------------------------------------------
+QList<DriverProfile> DriverProfileManager::buildIntelProfiles()
+{
+    QList<DriverProfile> profiles;
+
+    // Modern Intel (Broadwell+): mesa + vulkan-intel + intel-media-driver
+    {
+        DriverProfile p;
+        p.id = "intel-modern";
+        p.displayName = "Intel Mesa (Broadwell+)";
+        p.requiredPackages = {"mesa", "vulkan-intel", "intel-media-driver"};
+        p.optionalPackages = {"lib32-mesa", "lib32-vulkan-intel"};
+        p.source = PackageSource::Pacman;
+        p.type = DriverType::OpenSource;
+        p.recommended = true;
+        p.vendor = "Intel";
+        p.description = "Open-source Mesa/Vulkan driver for Intel HD/UHD/Iris/Arc GPUs (Broadwell and newer). Recommended.";
+        p.active = false;
+        p.installStatus = InstallStatus::NotInstalled;
+        profiles.append(p);
+    }
+
+    // Legacy Intel (pre-Broadwell): mesa + libva-intel-driver
+    {
+        DriverProfile p;
+        p.id = "intel-legacy";
+        p.displayName = "Intel Mesa (Legacy)";
+        p.requiredPackages = {"mesa", "libva-intel-driver"};
+        p.optionalPackages = {"lib32-mesa", "xf86-video-intel"};
+        p.source = PackageSource::Pacman;
+        p.type = DriverType::OpenSource;
+        p.recommended = false;
+        p.vendor = "Intel";
+        p.description = "Open-source Mesa driver for older Intel GPUs (pre-Broadwell, GMA series).";
+        p.active = false;
+        p.installStatus = InstallStatus::NotInstalled;
+        profiles.append(p);
+    }
+
+    return profiles;
+}
+
+// ---------------------------------------------------------------------------
+// AMD profiles
+// ---------------------------------------------------------------------------
+QList<DriverProfile> DriverProfileManager::buildAmdProfiles()
+{
+    QList<DriverProfile> profiles;
+
+    // AMD open-source (GCN+): mesa + xf86-video-amdgpu + vulkan-radeon
+    {
+        DriverProfile p;
+        p.id = "amd-opensource";
+        p.displayName = "AMD Mesa / AMDGPU (Open Source)";
+        p.requiredPackages = {"mesa", "xf86-video-amdgpu", "vulkan-radeon"};
+        p.optionalPackages = {"lib32-mesa", "lib32-vulkan-radeon"};
+        p.source = PackageSource::Pacman;
+        p.type = DriverType::OpenSource;
+        p.recommended = true;
+        p.vendor = "AMD";
+        p.description = "Open-source AMDGPU kernel driver with Mesa Vulkan. Recommended for GCN and newer.";
+        p.active = false;
+        p.installStatus = InstallStatus::NotInstalled;
+        profiles.append(p);
+    }
+
+    // AMD legacy (pre-GCN): xf86-video-ati
+    {
+        DriverProfile p;
+        p.id = "amd-legacy";
+        p.displayName = "AMD ATI (Legacy)";
+        p.requiredPackages = {"mesa", "xf86-video-ati"};
+        p.optionalPackages = {"lib32-mesa"};
+        p.source = PackageSource::Pacman;
+        p.type = DriverType::OpenSource;
+        p.recommended = false;
+        p.vendor = "AMD";
+        p.description = "Open-source ATI driver for pre-GCN AMD/ATI GPUs.";
+        p.active = false;
+        p.installStatus = InstallStatus::NotInstalled;
+        profiles.append(p);
+    }
+
+    // AMD PRO (amdgpu-pro from AUR)
+    {
+        DriverProfile p;
+        p.id = "amd-pro";
+        p.displayName = "AMDGPU PRO (Proprietary)";
+        p.requiredPackages = {"amdgpu-pro-libgl"};
+        p.optionalPackages = {"opencl-amd"};
+        p.source = PackageSource::AUR;
+        p.type = DriverType::Proprietary;
+        p.recommended = false;
+        p.vendor = "AMD";
+        p.description = "Proprietary AMDGPU PRO driver from AUR. For OpenCL support or professional applications.";
+        p.active = false;
+        p.installStatus = InstallStatus::NotInstalled;
+        profiles.append(p);
+    }
+
+    return profiles;
+}
+
+// ---------------------------------------------------------------------------
+// NVIDIA profiles
+// ---------------------------------------------------------------------------
+QList<DriverProfile> DriverProfileManager::buildNvidiaProfiles()
+{
+    QList<DriverProfile> profiles;
+
+    // NVIDIA proprietary (Maxwell+, DKMS)
+    {
+        DriverProfile p;
+        p.id = "nvidia-proprietary";
+        p.displayName = "NVIDIA Proprietary (DKMS)";
+        p.requiredPackages = {"nvidia-dkms", "nvidia-utils"};
+        p.optionalPackages = {"lib32-nvidia-utils", "nvidia-settings"};
+        p.source = PackageSource::Pacman;
+        p.type = DriverType::Proprietary;
+        p.recommended = true;
+        p.vendor = "NVIDIA";
+        p.description = "Proprietary NVIDIA driver using DKMS. Recommended for Maxwell (GTX 900) and newer.";
+        p.active = false;
+        p.installStatus = InstallStatus::NotInstalled;
+        profiles.append(p);
+    }
+
+    // NVIDIA proprietary (standard, for linux kernel)
+    {
+        DriverProfile p;
+        p.id = "nvidia-standard";
+        p.displayName = "NVIDIA Proprietary (Standard)";
+        p.requiredPackages = {"nvidia", "nvidia-utils"};
+        p.optionalPackages = {"lib32-nvidia-utils", "nvidia-settings"};
+        p.source = PackageSource::Pacman;
+        p.type = DriverType::Proprietary;
+        p.recommended = false;
+        p.vendor = "NVIDIA";
+        p.description = "Proprietary NVIDIA driver for the standard linux kernel. Use nvidia-dkms for custom kernels.";
+        p.active = false;
+        p.installStatus = InstallStatus::NotInstalled;
+        profiles.append(p);
+    }
+
+    // NVIDIA LTS kernel
+    {
+        DriverProfile p;
+        p.id = "nvidia-lts";
+        p.displayName = "NVIDIA Proprietary (LTS Kernel)";
+        p.requiredPackages = {"nvidia-lts", "nvidia-utils"};
+        p.optionalPackages = {"lib32-nvidia-utils", "nvidia-settings"};
+        p.source = PackageSource::Pacman;
+        p.type = DriverType::Proprietary;
+        p.recommended = false;
+        p.vendor = "NVIDIA";
+        p.description = "Proprietary NVIDIA driver for the linux-lts kernel.";
+        p.active = false;
+        p.installStatus = InstallStatus::NotInstalled;
+        profiles.append(p);
+    }
+
+    // NVIDIA legacy Kepler (470xx from AUR)
+    {
+        DriverProfile p;
+        p.id = "nvidia-470xx";
+        p.displayName = "NVIDIA 470xx (Kepler Legacy)";
+        p.requiredPackages = {"nvidia-470xx-dkms", "nvidia-470xx-utils"};
+        p.optionalPackages = {"lib32-nvidia-470xx-utils"};
+        p.source = PackageSource::AUR;
+        p.type = DriverType::Proprietary;
+        p.recommended = false;
+        p.vendor = "NVIDIA";
+        p.description = "Legacy NVIDIA driver from AUR for GeForce 600/700 series (Kepler).";
+        p.active = false;
+        p.installStatus = InstallStatus::NotInstalled;
+        profiles.append(p);
+    }
+
+    // Nouveau (open-source)
+    {
+        DriverProfile p;
+        p.id = "nvidia-nouveau";
+        p.displayName = "Nouveau (Open Source)";
+        p.requiredPackages = {"mesa", "xf86-video-nouveau"};
+        p.optionalPackages = {"lib32-mesa"};
+        p.source = PackageSource::Pacman;
+        p.type = DriverType::OpenSource;
+        p.recommended = false;
+        p.vendor = "NVIDIA";
+        p.description = "Open-source Nouveau driver. Lower performance, no advanced GPU features. Fallback option.";
+        p.active = false;
+        p.installStatus = InstallStatus::NotInstalled;
+        profiles.append(p);
+    }
+
+    return profiles;
+}
+
+// ---------------------------------------------------------------------------
+// Public API
+// ---------------------------------------------------------------------------
 QList<DriverProfile> DriverProfileManager::getProfilesForVendor(const QString &vendor)
 {
-    Q_UNUSED(vendor);
-    // TODO: implement vendor-based profile lookup
+    if (vendor == "Intel")
+        return buildIntelProfiles();
+    if (vendor == "AMD")
+        return buildAmdProfiles();
+    if (vendor == "NVIDIA")
+        return buildNvidiaProfiles();
     return {};
 }
 
 QList<DriverProfile> DriverProfileManager::getAllProfiles()
 {
-    // TODO: return all driver profiles
-    return {};
+    QList<DriverProfile> all;
+    all.append(buildIntelProfiles());
+    all.append(buildAmdProfiles());
+    all.append(buildNvidiaProfiles());
+    return all;
+}
+
+QList<DriverProfile> DriverProfileManager::getProfilesForDevice(
+    const GpuDevice &device,
+    PackageManager &packageManager)
+{
+    QList<DriverProfile> profiles = getProfilesForVendor(device.vendor);
+
+    for (auto &profile : profiles) {
+        profile.installStatus = checkInstallStatus(profile, packageManager);
+        profile.active = isDriverActive(profile, device);
+    }
+
+    return profiles;
+}
+
+InstallStatus DriverProfileManager::checkInstallStatus(
+    const DriverProfile &profile,
+    PackageManager &packageManager)
+{
+    if (profile.requiredPackages.isEmpty())
+        return InstallStatus::NotInstalled;
+
+    int installedCount = 0;
+    for (const QString &pkg : profile.requiredPackages) {
+        if (packageManager.isPackageInstalled(pkg))
+            ++installedCount;
+    }
+
+    if (installedCount == 0)
+        return InstallStatus::NotInstalled;
+    if (installedCount == profile.requiredPackages.size())
+        return InstallStatus::FullyInstalled;
+    return InstallStatus::PartiallyInstalled;
+}
+
+bool DriverProfileManager::isDriverActive(
+    const DriverProfile &profile,
+    const GpuDevice &device)
+{
+    const QString &driver = device.kernelDriver;
+
+    // For NVIDIA proprietary profiles, the kernel driver is "nvidia".
+    // We need to disambiguate by checking which package is actually installed.
+    if (profile.id == "nvidia-proprietary" || profile.id == "nvidia-standard" || profile.id == "nvidia-lts") {
+        // Active only if the kernel driver is nvidia AND this specific profile is fully installed
+        return driver == "nvidia" && profile.installStatus == InstallStatus::FullyInstalled;
+    }
+    if (profile.id == "nvidia-470xx") {
+        return driver == "nvidia" && profile.installStatus == InstallStatus::FullyInstalled;
+    }
+    if (profile.id == "nvidia-nouveau") {
+        return driver == "nouveau";
+    }
+
+    // For AMD, amdgpu is used by both open-source and PRO.
+    // PRO is only active if its packages are installed.
+    if (profile.id == "amd-pro") {
+        return driver == "amdgpu" && profile.installStatus == InstallStatus::FullyInstalled;
+    }
+    if (profile.id == "amd-opensource") {
+        return driver == "amdgpu";
+    }
+    if (profile.id == "amd-legacy") {
+        return driver == "radeon";
+    }
+
+    if (profile.id.startsWith("intel-")) {
+        return driver == "i915";
+    }
+
+    return false;
 }

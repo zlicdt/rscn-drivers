@@ -13,6 +13,10 @@
 
 #include <QMainWindow>
 
+#include "hardwaredetector.h"
+#include "driverprofile.h"
+#include "packagemanager.h"
+
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -20,6 +24,13 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
+
+private:
+    void scanHardware();
+
+    HardwareDetector *m_detector;
+    PackageManager *m_packageManager;
+    QList<GpuDevice> m_gpuDevices;
 };
 
 #endif // MAINWINDOW_H
