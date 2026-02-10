@@ -1,0 +1,17 @@
+# Build
+build/
+
+# IDE
+.vscode/
+.idea/
+*.user
+CMakeLists.txt.user
+CMakeUserPresets.json
+
+# Compiled
+*.o
+*.so
+*.a
+moc_*
+qrc_*
+ui_*

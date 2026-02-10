@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=RSCN Drivers
+Comment=Install and manage hardware drivers
+GenericName=Driver Manager
+Exec=rscn-drivers
+Icon=rscn-drivers
+Terminal=false
+Type=Application
+Categories=System;Settings;HardwareSettings;
+Keywords=driver;gpu;nvidia;amd;intel;hardware;

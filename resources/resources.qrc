@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/icons">
+        <file alias="rscn-drivers.svg">../assets/rscn-drivers.svg</file>
+    </qresource>
+</RCC>
