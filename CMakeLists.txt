@@ -61,3 +61,7 @@ install(FILES assets/rscn-drivers.svg
 install(FILES assets/org.rscn.drivers.policy
     DESTINATION ${CMAKE_INSTALL_DATADIR}/polkit-1/actions
 )
+
+install(PROGRAMS assets/rscn-drivers-pkhelper
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/rscn-drivers
+)

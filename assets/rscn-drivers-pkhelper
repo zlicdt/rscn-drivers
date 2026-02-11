@@ -1,0 +1,115 @@
+#!/bin/bash
+# =============================================================================
+# RSCN Drivers - Privileged Package Helper
+#
+# This script is executed via pkexec to perform privileged package management
+# operations. It acts as a controlled gateway to pacman and system utilities,
+# ensuring only approved operations are run with elevated privileges.
+#
+# Usage: pkexec /usr/lib/rscn-drivers/rscn-drivers-pkhelper <command> [args...]
+#
+# Copyright (C) 2026 ReSpring Clips Neko
+# License: GPL-3.0-or-later
+# =============================================================================
+
+set -euo pipefail
+
+PROG_NAME="rscn-drivers-pkhelper"
+
+log_info() {
+    echo "[${PROG_NAME}] $*"
+}
+
+log_error() {
+    echo "[${PROG_NAME}] ERROR: $*" >&2
+}
+
+# Validate that we have at least one argument
+if [ $# -lt 1 ]; then
+    log_error "No command specified."
+    echo "Usage: $0 {install|remove|remove-kms-hook|regenerate-initramfs|regenerate-grub}" >&2
+    exit 1
+fi
+
+COMMAND="$1"
+shift
+
+case "${COMMAND}" in
+    install)
+        # Install packages via pacman
+        if [ $# -eq 0 ]; then
+            log_error "No packages specified for installation."
+            exit 1
+        fi
+        log_info "Installing packages: $*"
+        exec pacman -S --noconfirm --needed "$@"
+        ;;
+
+    remove)
+        # Remove packages via pacman (with dependencies and config cleanup)
+        if [ $# -eq 0 ]; then
+            log_error "No packages specified for removal."
+            exit 1
+        fi
+        log_info "Removing packages: $*"
+        # Use -Rns to also remove unneeded dependencies and backup configs
+        # Use --noconfirm to avoid interactive prompts
+        exec pacman -Rns --noconfirm "$@"
+        ;;
+
+    remove-kms-hook)
+        # Remove 'kms' from HOOKS in /etc/mkinitcpio.conf
+        # This is required when installing NVIDIA proprietary drivers
+        MKINITCPIO_CONF="/etc/mkinitcpio.conf"
+
+        if [ ! -f "${MKINITCPIO_CONF}" ]; then
+            log_error "mkinitcpio.conf not found at ${MKINITCPIO_CONF}"
+            exit 1
+        fi
+
+        if grep -qP '\bkms\b' "${MKINITCPIO_CONF}"; then
+            log_info "Removing 'kms' hook from ${MKINITCPIO_CONF}"
+            # Create a backup before modifying
+            cp "${MKINITCPIO_CONF}" "${MKINITCPIO_CONF}.bak"
+            # Remove 'kms' word from HOOKS line, preserving other hooks
+            sed -i 's/\bkms\b//g' "${MKINITCPIO_CONF}"
+            # Clean up any resulting double spaces
+            sed -i 's/  \+/ /g' "${MKINITCPIO_CONF}"
+            # Clean up space after opening paren or before closing paren
+            sed -i 's/( /(/g; s/ )/)/g' "${MKINITCPIO_CONF}"
+            log_info "Successfully removed 'kms' hook (backup saved as ${MKINITCPIO_CONF}.bak)"
+        else
+            log_info "'kms' hook not found in ${MKINITCPIO_CONF}, no changes needed"
+        fi
+        ;;
+
+    regenerate-initramfs)
+        # Regenerate initramfs images using mkinitcpio
+        log_info "Regenerating initramfs images..."
+        exec mkinitcpio -P
+        ;;
+
+    regenerate-grub)
+        # Regenerate bootloader configuration
+        GRUB_CFG="/boot/grub/grub.cfg"
+
+        if [ -f "${GRUB_CFG}" ]; then
+            log_info "Regenerating GRUB configuration..."
+            exec grub-mkconfig -o "${GRUB_CFG}"
+        else
+            # Check for systemd-boot (common alternative on Arch)
+            if command -v bootctl &>/dev/null && bootctl is-installed &>/dev/null; then
+                log_info "systemd-boot detected, updating bootloader..."
+                exec bootctl update
+            else
+                log_info "No supported bootloader configuration found, skipping"
+            fi
+        fi
+        ;;
+
+    *)
+        log_error "Unknown command: '${COMMAND}'"
+        echo "Usage: $0 {install|remove|remove-kms-hook|regenerate-initramfs|regenerate-grub}" >&2
+        exit 1
+        ;;
+esac

@@ -49,21 +49,21 @@
 
 ## Phase 4: Package Management Backend
 
-- [ ] Implement pacman wrapper for:
-  - [ ] Install packages (`pacman -S --noconfirm`)
-  - [ ] Remove packages (`pacman -Rns`)
-  - [ ] Check if package is installed (`pacman -Q`)
-  - [ ] Check if package is available (`pacman -Si`)
-- [ ] Implement AUR helper integration (yay/paru):
-  - [ ] Detect available AUR helper
-  - [ ] Install AUR packages
-  - [ ] Remove AUR packages
-- [ ] Implement privilege escalation via pkexec/polkit
-- [ ] Handle post-install steps:
-  - [ ] NVIDIA: remove `kms` from mkinitcpio HOOKS
-  - [ ] Regenerate initramfs (`mkinitcpio -P`)
-  - [ ] Regenerate GRUB config (`grub-mkconfig`)
-  - [ ] Prompt for reboot
+- [x] Implement pacman wrapper for:
+  - [x] Install packages (`pacman -S --noconfirm`)
+  - [x] Remove packages (`pacman -Rns`)
+  - [x] Check if package is installed (`pacman -Q`)
+  - [x] Check if package is available (`pacman -Si`)
+- [x] Implement AUR helper integration (yay/paru):
+  - [x] Detect available AUR helper
+  - [x] Install AUR packages
+  - [x] Remove AUR packages
+- [x] Implement privilege escalation via pkexec/polkit
+- [x] Handle post-install steps:
+  - [x] NVIDIA: remove `kms` from mkinitcpio HOOKS
+  - [x] Regenerate initramfs (`mkinitcpio -P`)
+  - [x] Regenerate GRUB config (`grub-mkconfig`)
+  - [x] Prompt for reboot
 
 ## Phase 5: Main Window UI
 
