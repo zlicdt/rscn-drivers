@@ -31,6 +31,7 @@ QList<DriverProfile> DriverProfileManager::buildIntelProfiles()
         p.description = "Open-source Mesa/Vulkan driver for Intel HD/UHD/Iris/Arc GPUs (Broadwell and newer). Recommended.";
         p.active = false;
         p.installStatus = InstallStatus::NotInstalled;
+        p.supportedArchs = {GpuArch::IntelBroadwellPlus, GpuArch::IntelArc};
         profiles.append(p);
     }
 
@@ -48,6 +49,7 @@ QList<DriverProfile> DriverProfileManager::buildIntelProfiles()
         p.description = "Open-source Mesa driver for older Intel GPUs (pre-Broadwell, GMA series).";
         p.active = false;
         p.installStatus = InstallStatus::NotInstalled;
+        p.supportedArchs = {GpuArch::IntelLegacy};
         profiles.append(p);
     }
 
@@ -75,6 +77,7 @@ QList<DriverProfile> DriverProfileManager::buildAmdProfiles()
         p.description = "Open-source AMDGPU kernel driver with Mesa Vulkan. Recommended for GCN and newer.";
         p.active = false;
         p.installStatus = InstallStatus::NotInstalled;
+        p.supportedArchs = {GpuArch::AmdGcn, GpuArch::AmdRdna, GpuArch::AmdIntegrated};
         profiles.append(p);
     }
 
@@ -92,6 +95,7 @@ QList<DriverProfile> DriverProfileManager::buildAmdProfiles()
         p.description = "Open-source ATI driver for pre-GCN AMD/ATI GPUs.";
         p.active = false;
         p.installStatus = InstallStatus::NotInstalled;
+        p.supportedArchs = {GpuArch::AmdPreGcn};
         profiles.append(p);
     }
 
@@ -109,6 +113,7 @@ QList<DriverProfile> DriverProfileManager::buildAmdProfiles()
         p.description = "Proprietary AMDGPU PRO driver from AUR. For OpenCL support or professional applications.";
         p.active = false;
         p.installStatus = InstallStatus::NotInstalled;
+        p.supportedArchs = {GpuArch::AmdGcn, GpuArch::AmdRdna, GpuArch::AmdIntegrated};
         profiles.append(p);
     }
 
@@ -136,6 +141,9 @@ QList<DriverProfile> DriverProfileManager::buildNvidiaProfiles()
         p.description = "Proprietary NVIDIA driver using DKMS. Recommended for Maxwell (GTX 900) and newer.";
         p.active = false;
         p.installStatus = InstallStatus::NotInstalled;
+        p.supportedArchs = {GpuArch::NvidiaMaxwell, GpuArch::NvidiaPascal,
+                            GpuArch::NvidiaTuring, GpuArch::NvidiaAmpere,
+                            GpuArch::NvidiaAdaLovelace};
         profiles.append(p);
     }
 
@@ -153,6 +161,9 @@ QList<DriverProfile> DriverProfileManager::buildNvidiaProfiles()
         p.description = "Proprietary NVIDIA driver for the standard linux kernel. Use nvidia-dkms for custom kernels.";
         p.active = false;
         p.installStatus = InstallStatus::NotInstalled;
+        p.supportedArchs = {GpuArch::NvidiaMaxwell, GpuArch::NvidiaPascal,
+                            GpuArch::NvidiaTuring, GpuArch::NvidiaAmpere,
+                            GpuArch::NvidiaAdaLovelace};
         profiles.append(p);
     }
 
@@ -170,6 +181,9 @@ QList<DriverProfile> DriverProfileManager::buildNvidiaProfiles()
         p.description = "Proprietary NVIDIA driver for the linux-lts kernel.";
         p.active = false;
         p.installStatus = InstallStatus::NotInstalled;
+        p.supportedArchs = {GpuArch::NvidiaMaxwell, GpuArch::NvidiaPascal,
+                            GpuArch::NvidiaTuring, GpuArch::NvidiaAmpere,
+                            GpuArch::NvidiaAdaLovelace};
         profiles.append(p);
     }
 
@@ -187,10 +201,11 @@ QList<DriverProfile> DriverProfileManager::buildNvidiaProfiles()
         p.description = "Legacy NVIDIA driver from AUR for GeForce 600/700 series (Kepler).";
         p.active = false;
         p.installStatus = InstallStatus::NotInstalled;
+        p.supportedArchs = {GpuArch::NvidiaKepler};
         profiles.append(p);
     }
 
-    // Nouveau (open-source)
+    // Nouveau (open-source) — works with all NVIDIA GPUs as fallback
     {
         DriverProfile p;
         p.id = "nvidia-nouveau";
@@ -204,6 +219,7 @@ QList<DriverProfile> DriverProfileManager::buildNvidiaProfiles()
         p.description = "Open-source Nouveau driver. Lower performance, no advanced GPU features. Fallback option.";
         p.active = false;
         p.installStatus = InstallStatus::NotInstalled;
+        p.supportedArchs = {};  // empty = all NVIDIA architectures
         profiles.append(p);
     }
 
@@ -237,14 +253,37 @@ QList<DriverProfile> DriverProfileManager::getProfilesForDevice(
     const GpuDevice &device,
     PackageManager &packageManager)
 {
-    QList<DriverProfile> profiles = getProfilesForVendor(device.vendor);
+    QList<DriverProfile> allProfiles = getProfilesForVendor(device.vendor);
+    QList<DriverProfile> filtered;
 
-    for (auto &profile : profiles) {
+    // Filter profiles by supported architecture
+    for (auto &profile : allProfiles) {
+        // Empty supportedArchs means the profile applies to all architectures of that vendor
+        if (!profile.supportedArchs.isEmpty() &&
+            !profile.supportedArchs.contains(device.architecture)) {
+            continue;
+        }
+
         profile.installStatus = checkInstallStatus(profile, packageManager);
         profile.active = isDriverActive(profile, device);
+        filtered.append(profile);
     }
 
-    return profiles;
+    // If the legacy profile is the right match, mark it as recommended instead of the modern one
+    // (e.g., Intel legacy GPU should recommend intel-legacy, not intel-modern)
+    bool hasRecommendedActive = false;
+    for (const auto &p : filtered) {
+        if (p.recommended)
+            hasRecommendedActive = true;
+    }
+
+    // If no recommended profile matched the architecture filter,
+    // promote the first available profile to recommended
+    if (!hasRecommendedActive && !filtered.isEmpty()) {
+        filtered[0].recommended = true;
+    }
+
+    return filtered;
 }
 
 InstallStatus DriverProfileManager::checkInstallStatus(

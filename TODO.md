@@ -28,24 +28,24 @@
 
 ## Phase 3: Driver Database / Profile System
 
-- [ ] Define a driver profile data structure:
+- [x] Define a driver profile data structure:
   - Driver name (display)
   - Package list (required + optional)
   - Source (pacman / AUR)
   - Type (proprietary / open-source)
   - Recommended flag
   - Supported GPU architectures / PCI IDs
-- [ ] Create driver profiles for:
-  - [ ] Intel modern (Broadwell+)
-  - [ ] Intel legacy (pre-Broadwell)
-  - [ ] AMD open-source (GCN+)
-  - [ ] AMD legacy (pre-GCN, xf86-video-ati)
-  - [ ] AMD PRO (amdgpu-pro, AUR)
-  - [ ] NVIDIA proprietary (Maxwell+, nvidia-dkms)
-  - [ ] NVIDIA LTS kernel variant
-  - [ ] NVIDIA legacy Kepler (nvidia-470xx-dkms, AUR)
-  - [ ] NVIDIA open-source (Nouveau)
-- [ ] Determine installed status for each profile
+- [x] Create driver profiles for:
+  - [x] Intel modern (Broadwell+)
+  - [x] Intel legacy (pre-Broadwell)
+  - [x] AMD open-source (GCN+)
+  - [x] AMD legacy (pre-GCN, xf86-video-ati)
+  - [x] AMD PRO (amdgpu-pro, AUR)
+  - [x] NVIDIA proprietary (Maxwell+, nvidia-dkms)
+  - [x] NVIDIA LTS kernel variant
+  - [x] NVIDIA legacy Kepler (nvidia-470xx-dkms, AUR)
+  - [x] NVIDIA open-source (Nouveau)
+- [x] Determine installed status for each profile
 
 ## Phase 4: Package Management Backend
 

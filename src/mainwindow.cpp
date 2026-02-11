@@ -46,6 +46,7 @@ void MainWindow::scanHardware()
         qDebug() << "GPU:" << gpu.vendor << gpu.model;
         qDebug() << "  PCI Slot:      " << gpu.pciSlot;
         qDebug() << "  PCI ID:        " << gpu.pciId;
+        qDebug() << "  Architecture:  " << HardwareDetector::archToString(gpu.architecture);
         qDebug() << "  Kernel Driver: " << gpu.kernelDriver;
         qDebug() << "  Kernel Modules:" << gpu.kernelModules.join(", ");
 

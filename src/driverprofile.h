@@ -46,6 +46,7 @@ struct DriverProfile {
     QString description;           // brief description
     bool active;                   // whether this driver is currently in use
     InstallStatus installStatus;   // current install state
+    QList<GpuArch> supportedArchs; // GPU architectures this profile applies to (empty = all for vendor)
 };
 
 class DriverProfileManager
